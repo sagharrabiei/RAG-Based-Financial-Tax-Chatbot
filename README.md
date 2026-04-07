@@ -37,11 +37,11 @@ The chatbot processes user queries and generates context-aware responses based o
 ---
 
 ## Project Structure
-.
-├── main.ipynb
-├── inta_texts_cleaned.txt
-├── requirements.txt
-└── README.md
+
+- main.ipynb
+- inta_texts_cleaned.txt
+- requirements.txt
+- README.md
 
 
 ## Language Note
@@ -49,8 +49,7 @@ The chatbot responses are in Persian (Farsi) because the dataset is based on Ira
 This demonstrates the ability to work with non-English datasets and multilingual NLP systems.
 
 
-## Example
-##  نمونه پرسش و پاسخ (Example Q&A)
+## Example Q&A
 
 ###  سوال (Question)
 **مالیات بر ارزش افزوده چقدر است؟**  
