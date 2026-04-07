@@ -5,7 +5,7 @@ This project is a **Retrieval-Augmented Generation (RAG) chatbot** designed to a
 
 The chatbot processes user queries and generates context-aware responses based on a custom-built dataset collected from official sources.
 
----
+
 
 ## Features
 - Interactive chatbot (CLI-based)
@@ -14,7 +14,7 @@ The chatbot processes user queries and generates context-aware responses based o
 - 🇮🇷 Supports **Persian (Farsi)** language output
 - Fast responses using API-based LLMs
 
----
+
 
 ## How It Works
 1. A **Python web crawler** collects tax-related data from public sources.
@@ -25,7 +25,7 @@ The chatbot processes user queries and generates context-aware responses based o
    - Sends it to a language model
 4. The model generates a **context-aware response**
 
----
+
 
 ## Technologies Used
 - Python
@@ -34,7 +34,7 @@ The chatbot processes user queries and generates context-aware responses based o
 - Web Scraping
 - RAG (Retrieval-Augmented Generation)
 
----
+
 
 ## Project Structure
 
