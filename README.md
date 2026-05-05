@@ -72,7 +72,7 @@ Models are tried in order until one responds successfully:
 ├── .env                     # OPENROUTER_API_KEY (not committed)
 ├── requirements.txt
 └── README.md
-
+```
 ---
 
 ## Quick Start
