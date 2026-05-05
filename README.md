@@ -1,4 +1,4 @@
-# Persian Tax Assistant — RAG System
+# Persian Tax Assistant: RAG System & FastAPI Service
 
 A production-ready Retrieval-Augmented Generation (RAG) system that answers questions about Iranian tax regulations in Persian (Farsi), backed by a FastAPI service, a Streamlit UI, and a full test suite using PyTest.
 
