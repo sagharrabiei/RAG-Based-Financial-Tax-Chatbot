@@ -66,7 +66,7 @@ Models are tried in order until one responds successfully:
 ├── app.py                     # Streamlit UI
 ├── test.py                    # pytest API tests
 ├── inta_texts_cleaned.txt     # Scraped and cleaned tax documentation
-├── chroma_db/                 # Persistent vector database (auto-generated using my crawler written by Selenium)
+├── chroma_db/                 # Persistent vector database
 ├── .env                       # OPENROUTER_API_KEY (not committed)
 ├── requirements.txt
 └── README.md
