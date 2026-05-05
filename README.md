@@ -1,177 +1,95 @@
-# Persian Tax Assistant - RAG System
+# Persian Tax Assistant — RAG System
 
-A Retrieval-Augmented Generation (RAG) system designed to answer questions about Iranian tax regulations in Persian (Farsi). The system combines semantic search with large language models to provide accurate, context-aware responses with English translations.
+A production-ready Retrieval-Augmented Generation (RAG) system that answers questions about Iranian tax regulations in Persian (Farsi), backed by a FastAPI service, a Streamlit UI, and a full test suite using PyTest.
 
-##  Overview
+---
 
-This project implements a production-ready RAG pipeline that:
-- Processes Persian tax documentation into searchable chunks
-- Uses semantic embeddings to find relevant information
-- Generates comprehensive answers using state-of-the-art LLMs
-- Provides bilingual responses (Persian primary, English translation)
+## Overview
 
-Perfect for tax professionals, businesses, and individuals navigating Iranian tax regulations.
+This project implements an end-to-end RAG pipeline that:
+- Processes Persian tax documentation into semantically searchable chunks
+- Uses multilingual sentence embeddings to retrieve relevant context
+- Routes queries through a FastAPI backend to free LLM providers via OpenRouter
+- Renders a bilingual response (Persian primary, English translation below)
+- Exposes a clean Streamlit chat interface for end users
+- Ships with pytest integration tests for the API layer
 
-###  Dataset Creation
+### Dataset Creation
 
-Since no ready-made Persian tax dataset was available, I **built a custom web crawler** to automatically scrape and compile tax regulations from [tax.gov.ir](https://tax.gov.ir) - the official Iranian tax authority website. The crawler:
-- Navigates through the official tax documentation pages
-- Extracts and cleans Persian text content
-- Handles pagination and nested document structures
-- Produces the `inta_texts_cleaned.txt` dataset
+No ready-made Persian tax dataset existed, so a **custom web crawler** was built to scrape publicaly available data from [tax.gov.ir](https://tax.gov.ir) — the official Iranian Tax Authority website. The crawler navigates documentation pages, extracts and cleans Persian text, and produces `inta_texts_cleaned.txt`. This demonstrates **end-to-end data engineering** from raw government HTML to a production knowledge base.
 
-This demonstrates **end-to-end data engineering** - from raw web data to a production-ready knowledge base.
+---
+### Component Breakdown
 
-##  Features
+**`Data collection`** — Custom crawler scrapes and cleans tax.gov.ir into `inta_texts_cleaned.txt`.
 
-- **Custom Dataset**: Built a web crawler to scrape tax.gov.ir and create the dataset from scratch
-- **Semantic Search**: Uses multilingual sentence transformers to understand Persian queries
-- **Vector Database**: ChromaDB for efficient similarity search and persistent storage
-- **Smart Chunking**: Overlapping text chunks to preserve context across boundaries
-- **Multiple LLM Fallback**: Automatically tries different free models if one fails
-- **Flexible Deployment**: Switch between cloud APIs and local models without code changes
-- **Bilingual Output**: Answers in Persian with English translations
-- **Offline Capable**: Can run with locally cached models
+**`main.py`** — The original standalone prototype that runs the full RAG pipeline directly in the terminal with no API or UI. Handles ingestion (chunking + embedding + ChromaDB storage) and runs an interactive Persian Q&A loop in the console. Useful for testing the pipeline locally without spinning up any services.
 
-##  Tech Stack
+**`FastAPI Backend` (api.py)**
+The core service is optimized for performance by loading the embedding models into memory once at startup. It features an LLM Fallback Chain to ensure reliability; if the primary model (e.g., Qwen 3 or Llama 3.3) is unavailable via OpenRouter, the system automatically cycles through a priority list of 10+ models to ensure a successful response.
 
-- **Python 3.8+**
-- **Web Scraping**: Custom crawler for tax.gov.ir data collection
-- **ChromaDB**: Vector database for semantic search
-- **Sentence Transformers**: `paraphrase-multilingual-MiniLM-L12-v2` for embeddings
-- **OpenRouter API**: Access to multiple free LLM providers
-- **PyTorch**: Deep learning framework
-- **Transformers**: Hugging Face library (supports local models too)
+**`Streamlit UI` (app.py)**
+A lightweight, reactive frontend that interacts with the FastAPI layer. It provides a clean chat interface that renders bilingual answers (Persian primary with an English translation).
 
-##  Prerequisites
+**`Testing & Reliability (test.py)`**
+Using pytest and FastAPI's TestClient, the project includes integration tests that verify:
 
-```bash
-pip install torch chromadb sentence-transformers transformers python-dotenv openai
-```
+API endpoint health and response latency.
 
-##  Quick Start
+Pydantic schema validation for input/output.
 
-### 1. Clone the Repository
+Edge cases like empty queries or malformed requests.
 
-```bash
-git clone https://github.com/sagharrabiei/persian-tax-assistant.git
-cd persian-tax-assistant
+---
 
+## LLM Fallback Chain
 
+Models are tried in order until one responds successfully:
 
-
-### 2. Set Up Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-OPENROUTER_API_KEY=your_api_key_here
-```
-
-Get your free API key from [OpenRouter](https://openrouter.ai/).
-
-### 4. Run the System
-
-```bash
-python main.py
-```
-
-The first run will:
-1. Process and chunk your tax documentation
-2. Generate embeddings for each chunk
-3. Store everything in ChromaDB
-4. Start the interactive Q&A session
-
-Subsequent runs will use the cached database instantly.
-
-##  Usage Example
-
-```
-سامانه آماده است. برای خروج 'خروج' بنویسید
-
-سوال: مالیات بر ارزش افزوده چیست؟
-
-پاسخ: مالیات بر ارزش افزوده نوعی مالیات غیرمستقیم است که...
-Translation: Value Added Tax (VAT) is a type of indirect tax that...
-```
-
-Type `خروج` to exit the system.
-
-##  Architecture
-
-### 0. **Data Collection** (Preprocessing)
-- Custom web crawler scrapes tax.gov.ir
-- Extracts Persian text from government website
-- Cleans and formats raw HTML content
-- Produces structured text dataset
-
-### 1. **Document Processing**
-- Reads tax documentation from text file
-- Splits into 500-character chunks with 50-character overlap
-- Preserves context across chunk boundaries
-
-### 2. **Embedding Generation**
-- Uses `paraphrase-multilingual-MiniLM-L12-v2` model
-- Converts text to 384-dimensional vectors
-- Supports Persian, English, and 50+ languages
-
-### 3. **Vector Storage**
-- Persistent ChromaDB database (`./chroma_db`)
-- Stores documents, embeddings, and IDs
-- Efficient similarity search
-
-### 4. **Retrieval & Generation**
-- Converts user question to embedding
-- Retrieves top 5 most relevant chunks
-- Combines chunks into context
-- Generates answer using LLM with system prompt
-
-### 5. **LLM Fallback Chain**
-The system tries models in order until one succeeds:
-1. NVIDIA Nemotron 120B
+1. Qwen 3 14B
 2. OpenRouter Auto-select
 3. Meta Llama 3.3 70B
-4. Qwen 3 32B
-5. Qwen 3 14B
-6. DeepSeek V3
-7. Google Gemma models
-8. Mistral Small
-9. And more...
+4. DeepSeek R1
+5. DeepSeek V3
+6. NVIDIA Nemotron 120B
+7. Qwen 3 32B
+8. Google Gemma 4 31B / Gemma 3 27B / Gemma 3 12B / Gemma 3 4B
+9. Mistral Small 3.1 24B
+10. Meta Llama 3.1 8B
 
-##  Project Structure
+---
 
-```
-.
-├── main.py                    # Main RAG application
+
+## Project Structure
+├── main.py                    # Standalone prototype: ingestion + terminal Q&A loop
+├── api.py                     # FastAPI backend: /ask endpoint
+├── app.py                     # Streamlit UI
+├── test.py                    # pytest API tests
 ├── inta_texts_cleaned.txt     # Scraped and cleaned tax documentation
-├── .env                       # Environment variables
-├── chroma_db/                 # Vector database (auto-generated)
-├── requirements.txt           # Python dependencies
-└── README.md                  # This file
-```
+├── chroma_db/                 # Persistent vector database (auto-generated using my crawler written by Selenium)
+├── .env                       # OPENROUTER_API_KEY (not committed)
+├── requirements.txt
+└── README.md
+
+---
+
+## Quick Start
+1. **Setup:** `pip install -r requirements.txt`
+2. **Environment:** Add `OPENROUTER_API_KEY` to `.env`.
+3. **Launch:** `uvicorn api:app` for the backend and `streamlit run app.py` for the UI.
+4. **Test:** Run `pytest` to verify the RAG pipeline.
 
 
+---
 
-Use local LLM inference (uncommented in code) for complete privacy and zero data transmission.
+## Skills Demonstrated
 
-##  Use Cases
+- Data Engineering: End-to-end pipeline from raw web scraping to structured vector storage.
 
-- **Tax Professionals**: Quick lookup of tax regulations
-- **Businesses**: Understanding compliance requirements
-- **Developers**: Building tax-aware applications
-- **Researchers**: Analyzing tax policy documentation
-- **Students**: Learning about Iranian tax system
+- RAG Architecture: Implementing semantic retrieval, document chunking, and context injection.
 
-##  Skills Demonstrated
+- Defensive Programming: Building a multi-model fallback system for third-party API reliability.
 
-This project showcases:
+- Full-Stack AI: Decoupling logic into a RESTful API and a modern web interface.
 
-- **Data Engineering**: Built a web crawler to scrape and clean data from government websites
-- **NLP & Embeddings**: Implemented semantic search using multilingual transformers
-- **Vector Databases**: Designed efficient retrieval system with ChromaDB
-- **LLM Integration**: Multi-provider fallback system with OpenRouter API
-- **Local Model Deployment**: Configured both CPU and GPU inference with Hugging Face
-- **Production Architecture**: Modular code supporting multiple deployment scenarios
-- **Bilingual Systems**: Generated structured Persian-English responses
-- **Problem Solving**: Created a dataset from scratch when none existed publicly
-
+- Software Rigor: Applying automated testing to AI workflows to ensure production stability.

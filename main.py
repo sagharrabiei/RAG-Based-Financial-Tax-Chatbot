@@ -183,4 +183,3 @@ while True:
     # )
     #
     #print(f"\nپاسخ: {answer}")
-
